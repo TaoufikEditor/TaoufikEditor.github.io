@@ -228,6 +228,13 @@
      column composites the frame instead of repainting it — one of the
      pieces that lets sixteen 60fps tiles hold a steady 60fps */
   .tile video{transform:translateZ(0)}
+  /* hero tiles are poster images now (Drive preview iframes cannot
+     autoplay inside a 16-tile collage): a slow ken-burns drift keeps
+     the hero moving without video. Staggered with a negative delay
+     per tile so no two tiles move in lockstep. */
+  @keyframes tileKb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.5%,1%)}}
+  .tile img.kb{animation:tileKb 14s ease-in-out infinite alternate;will-change:transform}
+  @media (prefers-reduced-motion: reduce){.tile img.kb{animation:none}}
   .tile .ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;gap:8px}
   .tile .ph .w{font-weight:700;font-size:clamp(1rem,2.2vw,1.5rem);color:#fff;line-height:1.2;letter-spacing:.02em}
   .tile .ph .cap{align-self:flex-start;background:rgba(255,255,255,.92);color:#0d1526;font-weight:700;font-size:.68rem;border-radius:6px;padding:2px 8px}
@@ -331,6 +338,7 @@
   .work-play span svg{width:26px;height:26px}
   .work-media{aspect-ratio:9/12;background:var(--dark);position:relative;background-size:cover;background-position:center}
   .work-media iframe,.work-media video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;background:transparent}
+  .work-media img.work-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .work-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:3px;flex:1}
   .work-body h3{margin:0;font-size:1rem;font-weight:700}
   .work-body p{margin:0;color:var(--ink-soft);font-size:.88rem;flex:1}
@@ -460,8 +468,8 @@
     <span class="bokeh" data-dx="0.8" data-dy="-0.1" data-dist="42" style="width:18px;height:18px" aria-hidden="true"></span>
     <span class="bokeh" data-dx="-0.15" data-dy="0.8" data-dist="36" style="width:22px;height:22px" aria-hidden="true"></span>
     <div class="lens-wrap" id="lensWrap">
-      <img class="lens-photo" src="https://drive.usercontent.google.com/download?id=107BiO7dkhtMZOL0bt5uZcef883v-f6Uz&export=view" alt="عدسة سينما احترافية — Cinema camera lens" width="1600" height="1600" />
-      <div class="lens-glass" id="lensGlass" aria-hidden="true"><img src="https://drive.usercontent.google.com/download?id=107BiO7dkhtMZOL0bt5uZcef883v-f6Uz&export=view" alt="" /></div>
+      <img class="lens-photo" src="https://drive.google.com/thumbnail?id=107BiO7dkhtMZOL0bt5uZcef883v-f6Uz&sz=w1600" alt="عدسة سينما احترافية — Cinema camera lens" width="1600" height="1600" />
+      <div class="lens-glass" id="lensGlass" aria-hidden="true"><img src="https://drive.google.com/thumbnail?id=107BiO7dkhtMZOL0bt5uZcef883v-f6Uz&sz=w1600" alt="" /></div>
       <div class="lens-core" id="lensCore" aria-hidden="true"></div>
       <div class="lens-elem lens-elem-1" id="lensElem1" aria-hidden="true">
         <svg viewBox="0 0 100 100" fill="none">
@@ -574,7 +582,7 @@
     <div class="about-card">
       <div class="about-photo">
         <div class="cutout-frame">
-          <img id="profileImg" src="https://drive.usercontent.google.com/download?id=10CiYXmM-S41kG3d9LRufvuMaLlexFtZ3&export=view" alt="Taoufik Editor" />
+          <img id="profileImg" src="https://drive.google.com/thumbnail?id=10CiYXmM-S41kG3d9LRufvuMaLlexFtZ3&sz=w1600" alt="Taoufik Editor" />
           <span class="frame-rec" aria-hidden="true"><span class="dot"></span>REC</span>
           <span class="frame-badge" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4c0 .9 1 1.5 1.8 1L20.4 13a1.2 1.2 0 0 0 0-2L8.8 3.9C8 3.4 7 4 7 4.8Z"/></svg>VIDEO EDITOR</span>
         </div>
@@ -695,7 +703,7 @@
 (function(){
   "use strict";
   var DM = "https://ig.me/m/taoufik.creates";
-  var DEFAULT_PHOTO = "https://drive.usercontent.google.com/download?id=10CiYXmM-S41kG3d9LRufvuMaLlexFtZ3&export=view";
+  var DEFAULT_PHOTO = "https://drive.google.com/thumbnail?id=10CiYXmM-S41kG3d9LRufvuMaLlexFtZ3&sz=w1600";
   var checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   var playSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4c0 .9 1 1.5 1.8 1L20.4 13a1.2 1.2 0 0 0 0-2L8.8 3.9C8 3.4 7 4 7 4.8Z"/></svg>';
   var volOffSvg = '<svg class="ic-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z" fill="currentColor" stroke="none"/><path d="m16 9 6 6M22 9l-6 6"/></svg>';
@@ -903,20 +911,20 @@
 
   var DEFAULTS = {
     videos: [
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1cbAwqYA6gtL55l6Fo-r6m0SuqFptxkAq&export=view", title:"Video1", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1QUPwWXsUYV9Kn9kpMLVbn29QizfwYNEZ&export=view", title:"Video2", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1d95esI0RTlNa0a0FZ4IK13SzwfjDQnN4&export=view", title:"Video3", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1tRSTb6pQSd9LrFymPKpwK6xaGYhKeOnK&export=view", title:"Video4", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1HVQgKCoB5R4K2OxHvacNd4fvLiDCaaWz&export=view", title:"Video5", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1j83KTK_9ciz_DeKcDZ532Zm8uVm90RBH&export=view", title:"Video6", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1xbMgl9xjnAsOAYQmvKNmQVNg9_doQL09&export=view", title:"Video7", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1rq7BfhRjVSIxt6_47mWyqukJr8s2RWgN&export=view", title:"Video8", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1rDF3lYmTgYpPQB1hqbCN9MFPE54bVBoa&export=view", title:"Video9", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=16su0bPCXeEAjXOXRO986p7J6LqF5uDPn&export=view", title:"Video10", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1zLeBhqOU8aE-H8t_OQbEqd35s20pcuDT&export=view", title:"Video11", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1RSCoj9-OT2TGMaLjDHcDc7NxAidUlvi2&export=view", title:"Video12", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1Ku5qzZULh6a9bicijtMn_KB71ZghnIZo&export=view", title:"Video13", desc:"" },
-      { kind:"url", url:"https://drive.usercontent.google.com/download?id=1lc5k7M6gmu1SeXg-pdu3cXsGeY9qFjwt&export=view", title:"Video14", desc:"" }
+      { kind:"url", url:"https://drive.google.com/file/d/1cbAwqYA6gtL55l6Fo-r6m0SuqFptxkAq/preview", title:"Video1", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1QUPwWXsUYV9Kn9kpMLVbn29QizfwYNEZ/preview", title:"Video2", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1d95esI0RTlNa0a0FZ4IK13SzwfjDQnN4/preview", title:"Video3", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1tRSTb6pQSd9LrFymPKpwK6xaGYhKeOnK/preview", title:"Video4", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1HVQgKCoB5R4K2OxHvacNd4fvLiDCaaWz/preview", title:"Video5", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1j83KTK_9ciz_DeKcDZ532Zm8uVm90RBH/preview", title:"Video6", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1xbMgl9xjnAsOAYQmvKNmQVNg9_doQL09/preview", title:"Video7", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1rq7BfhRjVSIxt6_47mWyqukJr8s2RWgN/preview", title:"Video8", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1rDF3lYmTgYpPQB1hqbCN9MFPE54bVBoa/preview", title:"Video9", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/16su0bPCXeEAjXOXRO986p7J6LqF5uDPn/preview", title:"Video10", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1zLeBhqOU8aE-H8t_OQbEqd35s20pcuDT/preview", title:"Video11", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1RSCoj9-OT2TGMaLjDHcDc7NxAidUlvi2/preview", title:"Video12", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1Ku5qzZULh6a9bicijtMn_KB71ZghnIZo/preview", title:"Video13", desc:"" },
+      { kind:"url", url:"https://drive.google.com/file/d/1lc5k7M6gmu1SeXg-pdu3cXsGeY9qFjwt/preview", title:"Video14", desc:"" }
     ],
     tiers: [
       { price:"", per:"", featured:false,
@@ -1018,24 +1026,12 @@
        only for any older Drive link added back by hand. */
     var lm = u.match(/video-(\d+)\.mp4(?:\?|#|$)/i);
     if (lm) return "assets/posters/portfolio-video-" + lm[1] + ".jpg";
-    var m = u.match(/[?&]id=([A-Za-z0-9_-]+)/);
+    var m = u.match(/[?&]id=([A-Za-z0-9_-]+)/) || u.match(/\/file\/d\/([A-Za-z0-9_-]+)/);
     return m ? (DRIVE_POSTERS[m[1]] || "") : "";
   }
-  /* The hero tiles are small on screen (a few hundred px), but the
-     Works originals are 720x1280 at 60fps. Sixteen full-size 60fps
-     decoders running at once saturated the CPU/GPU, every tile
-     dropped frames, and the hero looked like it was playing at half
-     speed — the lag. So the collage plays purpose-built 60fps
-     previews instead (assets/videos/preview/: 480x854, silent, about
-     a quarter of the pixels, same 60 frames per second), while the
-     Works stage keeps the full-quality originals. Same smoothness,
-     a fraction of the decode cost — that is what lets the hero
-     actually render at a steady 60fps. Non-bundled videos (gallery
-     uploads, remote links) have no preview and play as they are. */
-  function previewFor(url){
-    var m = String(url || "").match(/assets\/videos\/video-(\d+)\.mp4(?:\?|#|$)/i);
-    return m ? "assets/videos/preview/video-" + m[1] + ".mp4" : url;
-  }
+  /* Hero tiles show poster images (see renderCollage) — Drive
+     preview iframes cannot autoplay inside a 16-tile collage, so
+     the hero moves with a slow ken-burns drift instead of video. */
   var videoIO = null;
   /* Playback is state-driven, not fire-and-forget: the observer only
      sets each video's "want" flag, and tryPlay() is retried whenever
@@ -1163,20 +1159,12 @@
     else { v.dataset.want = "1"; tryPlay(v); }
     return v;
   }
-  /* Direct-play videos: gallery files, .mp4 links, and Google Drive
-     links all play as native <video> — never as an iframe embed.
-     Drive media here uses direct usercontent links
-     (drive.usercontent.google.com/download?id=…&export=view) with no
-     redirect hop, so they must count as direct too. */
-  function isDirectVideo(v){
+  /* Drive preview player: a Drive video plays inside the page only
+     as its preview iframe (drive.google.com/file/d/<ID>/preview) —
+     direct download links never load in a browser. */
+  function isDrivePreview(v){
     if (!v) return false;
-    if (v.kind === "file") return true;
-    var u = String(v.url || "");
-    if (/\.mp4(\?|#|$)/i.test(u)) return true;
-    if (/drive\.usercontent\.google\.com\/download/i.test(u)) return true;
-    if (/drive\.google\.com\/uc(\?|#|$)/i.test(u)) return true;
-    if (/drive\.google\.com/i.test(u) && /export=view/i.test(u)) return true;
-    return false;
+    return /drive\.google\.com\/file\/d\//i.test(String(v.url || ""));
   }
 
   /* ---------- hero collage ---------- */
@@ -1203,20 +1191,14 @@
     teardownVideos(box);
     box.innerHTML = "";
     var cols = 4, per = Math.ceil(PH_TILES.length / cols);
-    var vids = state.videos.filter(isDirectVideo);
-    /* Every tile is a live video now, so the whole hero screen moves
-       exactly like the Works stage below — but the tiles play the
-       light 60fps previews (see previewFor), not the 720p Works
-       originals: sixteen full-size 60fps decoders at once was what
-       made the hero lag and drop frames. The strict hero observer
-       gates every tile — a video only loads and plays while its
-       tile is really on screen (30% visible), starts are staggered
-       so decoders never spin up in the same frame, and a tile
-       pauses the moment it drifts off. The 14 reels cycle across
-       the 16 tiles; a repeated reel starts at a different point so
-       no two tiles ever move in lockstep. The word + caption label
-       stays on top of the playing video; the fake play badge is gone
-       because nothing here is paused any more. */
+    var vids = state.videos;
+    /* Every tile shows a poster frame of one of the 14 reels, with a
+       slow ken-burns drift so the whole hero screen still moves —
+       the Drive preview player cannot autoplay inside a 16-tile
+       collage, and direct video links never load in a browser. The
+       14 reels cycle across the 16 tiles; the drift is staggered
+       with a negative delay so no two tiles ever move in lockstep.
+       The word + caption label stays on top of the poster. */
     var vi = 0;
     for (var c = 0; c < cols; c++){
       var col = document.createElement("div"); col.className = "col";
@@ -1226,17 +1208,15 @@
         tile.className = "tile " + tl.g + " " + tl.r;
         if (vids.length){
           var v = vids[vi % vids.length];
-          var vid = liveVideo(previewFor(v.url), posterFor(v.url), false, true);
-          vid.dataset.stagger = String((vi % 6) * 110);
-          if (vi >= vids.length){
-            vid.dataset.offset = String((vi * 1.7) % 9 + 0.4);
-            vid.addEventListener("loadedmetadata", function(){
-              var off = parseFloat(this.dataset.offset || "0");
-              try { if (off && this.duration && this.duration > off + 1) this.currentTime = off; } catch (e){}
-            });
-          }
+          var img = document.createElement("img");
+          img.className = "kb";
+          img.src = posterFor(v.url);
+          img.alt = "";
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.style.animationDelay = String(-((vi % 8) * 1.75)) + "s";
           vi++;
-          tile.appendChild(vid);
+          tile.appendChild(img);
           var ph = document.createElement("div");
           ph.className = "ph";
           ph.innerHTML = '<span class="w">' + tl.w + '</span><span class="cap' + (tl.b ? " b" : "") + '">' + esc(tl[lang]) + '</span>';
@@ -1282,9 +1262,28 @@
     if (count) count.textContent = state.videos.length ? (workIndex + 1) + " / " + state.videos.length : "";
     syncWorkVideos();
   }
+  /* Click-to-play iframes keep playing until removed: navigating to
+     another slide (or scrolling the Works stage off screen) must
+     tear the player down and bring the poster + play button back. */
+  function stopWorkIframes(){
+    var row = document.getElementById("workRow");
+    if (!row) return;
+    Array.prototype.forEach.call(row.querySelectorAll("iframe.drive-player"), function(fr){
+      var media = fr.parentNode;
+      fr.remove();
+      if (!media) return;
+      var img = media.querySelector(".work-poster");
+      if (img) img.style.display = "";
+      var btn = media.querySelector(".work-play");
+      if (btn) btn.hidden = false;
+      var tag = media.querySelector(".live-tag");
+      if (tag) tag.style.display = "";
+    });
+  }
   function setWorkIndex(i){
     var n = state.videos.length;
     if (!n) return;
+    stopWorkIframes();
     workIndex = ((i % n) + n) % n;
     applyWorkIndex();
   }
@@ -1305,30 +1304,43 @@
       card.className = "work-card";
       var media = document.createElement("div");
       media.className = "work-media";
-      if (isDirectVideo(v)){
+      if (isDrivePreview(v)){
         var poster = posterFor(v.url);
         if (poster) media.style.backgroundImage = "url(" + poster + ")";
-        var vid = liveVideo(v.url, poster, true);
-        /* Tap the video itself to pause / resume it. */
-        vid.addEventListener("click", function(){
-          if (vid.paused){ vid.dataset.want = "1"; tryPlay(vid); }
-          else { vid.dataset.want = "0"; vid.pause(); }
-        });
-        media.appendChild(vid);
+        /* Poster first; the Drive preview player only loads after
+           the visitor taps the play button (one click — the player
+           has its own controls and sound). Only the active slide
+           ever holds an iframe: navigating away removes it, which
+           stops playback and restores the poster. */
+        var posterImg = document.createElement("img");
+        posterImg.className = "work-poster";
+        posterImg.src = poster;
+        posterImg.alt = "";
+        posterImg.loading = "eager";
+        posterImg.decoding = "async";
+        media.appendChild(posterImg);
         var tag = document.createElement("span"); tag.className = "live-tag"; tag.textContent = t("liveTag");
         media.appendChild(tag);
-        /* A big centre play button whenever this reel sits paused —
-           a frozen-looking frame is always one obvious tap from
-           playing, never a dead end. */
+        /* A big centre play button — a still frame is always one
+           obvious tap from playing, never a dead end. */
         var playBtn = document.createElement("button");
         playBtn.type = "button"; playBtn.className = "work-play";
         playBtn.setAttribute("aria-label", "Play / تشغيل");
         playBtn.innerHTML = "<span>" + playSvg + "</span>";
-        playBtn.addEventListener("click", function(){ vid.dataset.want = "1"; tryPlay(vid); });
-        vid.addEventListener("play", function(){ playBtn.hidden = true; });
-        vid.addEventListener("pause", function(){ playBtn.hidden = false; });
+        playBtn.addEventListener("click", function(){
+          if (media.querySelector("iframe.drive-player")) return;
+          var fr = document.createElement("iframe");
+          fr.className = "drive-player";
+          fr.src = v.url;
+          fr.setAttribute("allow", "autoplay; fullscreen; picture-in-picture");
+          fr.allowFullscreen = true;
+          fr.title = v.title || t("reelFallback");
+          media.appendChild(fr);
+          posterImg.style.display = "none";
+          tag.style.display = "none";
+          playBtn.hidden = true;
+        });
         media.appendChild(playBtn);
-        media.appendChild(soundButton(vid));
       } else {
         var embed = igEmbed(v.url);
         var fr = document.createElement("iframe");
@@ -1359,6 +1371,7 @@
       new IntersectionObserver(function(entries){
         entries.forEach(function(en){
           workStageVisible = en.isIntersecting;
+          if (!en.isIntersecting) stopWorkIframes();
           syncWorkVideos();
         });
       }, { threshold: 0.2 }).observe(workStageEl);
